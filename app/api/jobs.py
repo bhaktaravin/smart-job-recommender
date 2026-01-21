@@ -1,54 +1,40 @@
-import os
-import shutil
+from typing import List
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.services.resume_parser import extract_text_from_pdf
+from app.models.job import Job
+from app.schemas.job import JobCreate
 
 router = APIRouter()
 
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Save a job
+@router.post("/save")
+def save_job(job: JobCreate, db: Session = Depends(get_db)):
+    job_data = job.dict()
+
+    # Convert HttpUrl to string
+    if job_data.get("url"):
+        job_data["url"] = str(job_data["url"])
+
+    db_job = Job(**job_data)
+    db.add(db_job)
+    db.commit()
+    db.refresh(db_job)
+    return {"message": "Job saved successfully", "job_id": db_job.id}
 
 
-@router.get("/all")
-def get_all_jobs(
-    limit: int = Query(50, ge=1, le=200, description="Max number of jobs to return"),
-    offset: int = Query(0, ge=0, description="Number of jobs to skip"),
-    location: str | None = Query(None, description="Filter by job location"),
-    company: str | None = Query(None, description="Filter by company"),
-    source: str | None = Query(None, description="Filter by job source"),
-    db: Session = Depends(get_db),
-):
-    """
-    Returns saved jobs with optional pagination and filters.
-    """
-    query = db.query(Job)
-
-    if location:
-        query = query.filter(Job.location.ilike(f"%{location}%"))
-    if company:
-        query = query.filter(Job.company.ilike(f"%{company}%"))
-    if source:
-        query = query.filter(Job.source.ilike(f"%{source}%"))
-
-    jobs = query.offset(offset).limit(limit).all()
-
+# Get all jobs
+@router.get("/all", response_model=List[JobCreate])
+def get_all_jobs(db: Session = Depends(get_db)):
+    jobs = db.query(Job).all()
     return [
         {
-            "id": j.id,
-            "title": j.title,
-            "company": j.company,
-            "location": j.location,
-            "source": j.source,
-            "url": j.url,
+            key: value
+            for key, value in job.__dict__.items()
+            if key != "_sa_instance_state"
         }
-        for j in jobs
+        for job in jobs
     ]

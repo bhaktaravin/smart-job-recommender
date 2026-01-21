@@ -1,9 +1,14 @@
 import os
 import shutil
 
-from fastapi import File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
+from sqlalchemy.orm import Session
 
+from app.core.database import get_db
 from app.services.resume_parser import extract_text_from_pdf
+
+# ✅ Define the router
+router = APIRouter()
 
 
 @router.post("/upload_resume/{user_id}")
