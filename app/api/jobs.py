@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+import validators
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -66,7 +67,8 @@ def save_job(job: JobCreate, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=409, detail=f"Job already exists with id {existing_job.id}"
         )
-
+    if not validators.url(job.url):
+        return {"error": "Invalid URL"}, 400
     db_job = Job(
         title=job.title,
         company=job.company,
