@@ -1,0 +1,59 @@
+name: Integration tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    env:
+      CI: 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and start services
+        run: |
+          docker compose up -d --build
+
+      - name: Wait for web to be healthy
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sSf http://localhost:8000/health >/dev/null 2>&1; then
+              echo "web is healthy"; break
+            fi
+            sleep 2
+          done
+
+      - name: Wait for Postgres to accept connections
+        run: |
+          for i in $(seq 1 30); do
+            if (echo > /dev/tcp/localhost/5432) >/dev/null 2>&1; then
+              echo "postgres is accepting connections"; break
+            fi
+            sleep 2
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies and test tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest requests psycopg2-binary
+
+      - name: Run unit tests
+        run: |
+          python -m pytest -q -m "not integration"
+
+      - name: Run integration tests
+        run: |
+          python -m pytest -q -m integration
+
+      - name: Tear down
+        if: always()
+        run: |
+          docker compose down -v

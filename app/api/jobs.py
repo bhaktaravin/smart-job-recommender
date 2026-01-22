@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.models import Job
+from app.models.job import Job
 from app.schemas import JobCreate, JobSchema
 
 router = APIRouter()
