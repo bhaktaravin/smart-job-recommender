@@ -17,6 +17,11 @@ def read_root():
     return {"message": "Job Hunter API is running!"}
 
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
+
 # Include routers
 app.include_router(ingest.router, prefix="/ingest", tags=["Ingest"])
 app.include_router(jobs.router, prefix="/jobs", tags=["Jobs"])
