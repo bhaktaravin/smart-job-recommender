@@ -93,7 +93,7 @@
     [
       "networkx",
       "networkx>=3.6.1,<4.0.0",
-      "networkx==3.6.1"
+      "networkx>=3.4,<4"
     ],
     [
       "numpy",
