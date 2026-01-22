@@ -21,3 +21,4 @@ nvidia-nvtx-cu12>=12.8.90
 triton>=3.6.0
 # Torch (GPU/CPU wheels vary by platform and Python version)
 torch>=2.10.0,<3.0.0
+networkx>=3.4,<4
