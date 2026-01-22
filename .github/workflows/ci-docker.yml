@@ -26,6 +26,8 @@ jobs:
           push: false
           tags: smart-job-recommender:ci
           load: true
+          build-args: |
+            REQUIREMENTS=requirements-ci.txt
 
       - name: Run container (smoke test)
         run: |
