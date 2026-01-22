@@ -60,7 +60,7 @@ scipy==1.17.0
 sentence-transformers==5.2.0
 setuptools==80.10.1
 SQLAlchemy==2.1.0b1
-starlette==0.52.1
+starlette==0.50.0
 sympy==1.14.0
 threadpoolctl==3.6.0
 tokenizers==0.22.2
