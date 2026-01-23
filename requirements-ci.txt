@@ -40,7 +40,7 @@ regex==2026.1.15
 requests==2.32.5
 safetensors==0.7.0
 scikit-learn>=1.5,<1.8
-scipy==1.17.0
+scipy>=1.9,<1.17
 setuptools==80.10.1
 SQLAlchemy==2.1.0b1
 starlette==0.50.0
